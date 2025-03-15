@@ -1,5 +1,5 @@
-#ifndef __CSL_UTILS_H__
-#define __CSL_UTILS_H__
+#ifndef __QUATI_UTILS_H__
+#define __QUATI_UTILS_H__
 
 #include <stdio.h>
 #include "includes.h"

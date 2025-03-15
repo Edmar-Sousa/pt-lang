@@ -1,5 +1,5 @@
-#ifndef __CSL_PARSER_H__
-#define __CSL_PARSER_H__
+#ifndef __QUATI_PARSER_H__
+#define __QUATI_PARSER_H__
 
 #include "utils.h"
 #include "globals.h"

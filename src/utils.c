@@ -18,7 +18,7 @@ void exitOnError(const char * message, ...)
     va_list args;
     va_start(args, message);
 
-    fprintf(stderr, "[CSL] ERROR: ");
+    fprintf(stderr, "[Quati] ERROR: ");
     vfprintf(stderr, message, args);
 
     va_end(args);
@@ -29,7 +29,7 @@ void exitOnError(const char * message, ...)
 void getProgram(int argc, char ** argv) 
 {
     if (argc < 2) {
-        printf("[CSL] Execute \"csl <program.ptl>\"\n");
+        printf("[Quati] Execute \"quati <program.quati>\"\n");
         exit(EXIT_FAILURE);
     }
 
@@ -37,7 +37,7 @@ void getProgram(int argc, char ** argv)
     strcpy(program, argv[1]);
 
     if (strchr(program, '.') == NULL) 
-        strcat(program, ".ptl");
+        strcat(program, ".quati");
 
     source = fopen(program, "r");
 }

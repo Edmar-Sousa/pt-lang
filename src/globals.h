@@ -1,5 +1,5 @@
-#ifndef __CSL_GLOBALS_H__
-#define __CSL_GLOBALS_H__
+#ifndef __QUATI_GLOBALS_H__
+#define __QUATI_GLOBALS_H__
 
 
 #define DEBUG   1

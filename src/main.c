@@ -1,12 +1,15 @@
+#include "globals.h"
 #include "utils.h"
-#include "parser.h"
+#include "scan.h"
 
 
 
 int main(int argc, char ** argv)
 {
     getProgram(argc, argv);
-    getProgramAST();
+    TokenType tok;
+
+    while ((tok = getNextToken()) != TOK_EOF);
 
     return 0;
 }
