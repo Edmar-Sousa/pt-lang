@@ -17,5 +17,5 @@ char getNextChar() {
 
 void backCaracter()
 {
-    bufferPos -= 1;
+    bufferPos = bufferPos > 0 ? bufferPos - 1 : 0;
 }
