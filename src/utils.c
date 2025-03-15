@@ -17,7 +17,7 @@ void exitOnError(const char * message, ...)
 void getProgram(int argc, char ** argv) 
 {
     if (argc < 2) {
-        printf("[CSL] Execute \"csl <program.csl>\"\n");
+        printf("[CSL] Execute \"csl <program.ptl>\"\n");
         exit(EXIT_FAILURE);
     }
 
@@ -25,7 +25,7 @@ void getProgram(int argc, char ** argv)
     strcpy(program, argv[1]);
 
     if (strchr(program, '.') == NULL) 
-        strcat(program, ".csl");
+        strcat(program, ".ptl");
 
     source = fopen(program, "r");
 }
