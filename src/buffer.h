@@ -18,4 +18,6 @@ void backCaracter();
 
 void getProgram(int argc, char ** argv);
 
+int getBufferPosition();
+
 #endif

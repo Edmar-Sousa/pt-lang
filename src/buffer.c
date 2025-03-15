@@ -61,6 +61,10 @@ char getNextChar() {
 }
 
 
+int getBufferPosition() {
+    return bufferPos;
+}
+
 void backCaracter()
 {
     bufferPos = bufferPos > 0 ? bufferPos - 1 : 0;
