@@ -1,0 +1,3 @@
+funcao teste(testee) {
+    retorne "Hello world!";
+}
