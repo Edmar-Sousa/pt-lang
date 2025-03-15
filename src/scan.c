@@ -1,5 +1,6 @@
 #include "scan.h"
 #include "globals.h"
+#include "utils.h"
 #include <stdio.h>
 
 FILE * source;
@@ -310,7 +311,7 @@ TokenType getNextToken()
                 if (isAlpha(c)) return getKeyWorldOrIdentifier();
                 if (isNumeric(c)) return getNumber();
 
-                exitOnError("caracter \"%s\" na linha %d\n", &c, linePos);
+                lexialError(linePos + 1, &c);
                 break;
         }
     }

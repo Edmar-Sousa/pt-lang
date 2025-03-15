@@ -1,4 +1,16 @@
 #include "utils.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+
+
+void lexialError(unsigned int line, const char * character)
+{
+    fprintf(stderr, "Erro: Não esperava o caracter \"%s\".\n", character);
+    fprintf(stderr, "\t%d | [buffer]\n", line);
+
+    exit(EXIT_FAILURE);
+}
 
 
 void exitOnError(const char * message, ...)
