@@ -3,8 +3,9 @@
 
 #include <stdio.h>
 #include "includes.h"
+#include "buffer.h"
 
-void getProgram(int argc, char ** argv);
+
 void lexialError(unsigned int line, const char * character);
 void exitOnError(const char * message, ...);
 
