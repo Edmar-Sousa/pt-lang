@@ -1,3 +1,4 @@
-funcao teste(testee, @) {
+variavel numero = 10;
+funcao teste(testee, @) { 
     retorne "Hello world!";
 }
