@@ -6,16 +6,16 @@
 
 
 #define MAX_BUFFER_SIZE         1024
+#define MAX_LINE_LIMIT            30
 
 
 extern FILE * source;
 
-static char buffer[MAX_BUFFER_SIZE];
-static int bufferSize = 0;
-static int bufferPos = 0;
-
 
 char getNextChar();
+char * getBufferSlice();
 void backCaracter();
+
+void getProgram(int argc, char ** argv);
 
 #endif
