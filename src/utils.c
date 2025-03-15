@@ -6,8 +6,8 @@
 
 void lexialError(unsigned int line, const char * character)
 {
-    fprintf(stderr, "Erro: Não esperava o caracter \"%s\".\n", character);
-    fprintf(stderr, "\t%d | [buffer]\n", line);
+    fprintf(stderr, "\nErro: Não esperava o caracter \"%s\".\n", character);
+    fprintf(stderr, "\t%d | %s\n\n", line, getBufferSlice());
 
     exit(EXIT_FAILURE);
 }
@@ -25,19 +25,3 @@ void exitOnError(const char * message, ...)
     exit(EXIT_FAILURE);
 }
 
-
-void getProgram(int argc, char ** argv) 
-{
-    if (argc < 2) {
-        printf("[Quati] Execute \"quati <program.quati>\"\n");
-        exit(EXIT_FAILURE);
-    }
-
-    char program[MAX_PROGRAM_NAME];
-    strcpy(program, argv[1]);
-
-    if (strchr(program, '.') == NULL) 
-        strcat(program, ".quati");
-
-    source = fopen(program, "r");
-}
