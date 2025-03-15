@@ -3,5 +3,5 @@ all:
 	gcc -c src/scan.c -o ./build/scan.o
 	gcc -c src/parser.c -o ./build/parser.o
 
-	gcc src/main.c ./build/*.o -o ./build/csl
+	gcc src/main.c ./build/*.o -o ./build/ptl
 	rm ./build/*.o
