@@ -4,9 +4,8 @@
 #include "includes.h"
 #include "globals.h"
 #include "utils.h"
+#include "buffer.h"
 
-
-#define MAX_BUFFER_SIZE         1024
 
 #define MAX_STRING_SIZE         1024
 #define MAX_IDENTIFIER_SIZE       30

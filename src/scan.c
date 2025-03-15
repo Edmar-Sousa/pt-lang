@@ -3,7 +3,6 @@
 #include "utils.h"
 #include <stdio.h>
 
-FILE * source;
 int linePos = 0;
 
 StructKeyWorld keyWorlds[MAX_NUMBER_KEY_WORLD] = {
@@ -16,32 +15,6 @@ StructKeyWorld keyWorlds[MAX_NUMBER_KEY_WORLD] = {
     { .world = "retorne", .type = TOK_RETURN }
 };
 
-
-
-static char buffer[MAX_BUFFER_SIZE];
-static int bufferSize = 0;
-static int bufferPos = 0;
-
-
-static char getNextChar()
-{
-    if (bufferPos < bufferSize)
-        return buffer[bufferPos++];
-
-    if (fgets(buffer, MAX_BUFFER_SIZE - 1, source)) {
-        bufferPos = 0;
-        bufferSize = strlen(buffer);
-        return buffer[bufferPos++];
-    }
-
-    return TOK_EOF;
-}
-
-
-static void backCaracter()
-{
-    bufferPos -= 1;
-}
 
 static int isAlpha(char c)
 {
