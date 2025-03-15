@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "buffer.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -6,8 +7,9 @@
 
 void lexialError(unsigned int line, const char * character)
 {
-    fprintf(stderr, "\nErro: Não esperava o caracter \"%s\".\n", character);
-    fprintf(stderr, "\t%d | %s\n\n", line, getBufferSlice());
+    fprintf(stderr, "\nErro: Não esperava o caracter \"%s\".\n\n", character);
+    fprintf(stderr, "\t%d | %s\n", line, getBufferSlice());
+    fprintf(stderr, "\t%*s^-- Aqui.\n\n", getBufferPosition() + 3, "");
 
     exit(EXIT_FAILURE);
 }
