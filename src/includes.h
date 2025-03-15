@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-extern FILE * source;
+
 extern int linePos;
 
 
