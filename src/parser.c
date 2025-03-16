@@ -6,10 +6,16 @@
 
 static TokenType currentToken;
 
+void showSyntaxeError()
+{
+    syntaxeError(getLine() + 1, getAmountIdentifier());
+}
+
+
 static void match(TokenType tok)
 {
     if (currentToken != tok)
-        exitOnError("Sintaxe error: tok %d, current %d\n", tok, currentToken);
+        showSyntaxeError();
 
     #ifdef DEBUG
     printf("MATCH: %d\n", tok);
@@ -83,7 +89,7 @@ static void stmtSequence()
                 break;
     
             default:
-                exitOnError("Erro de sintaxe\n");
+                showSyntaxeError();
         }
     }
 }
@@ -130,7 +136,7 @@ static void loopBody()
                 break;
     
             default:
-                exitOnError("Erro de sintaxe\n");
+                showSyntaxeError();
         }
     }
 }
@@ -207,7 +213,7 @@ static void funcBody()
                 break;
     
             default:
-                exitOnError("Erro de sintaxe\n");
+                showSyntaxeError();
         }
     }
 
@@ -316,7 +322,6 @@ static void factor()
         match(TOK_RPAR);
     }
 
-    else {
-        exitOnError("Erro de sintaxe %d\n", currentToken);
-    }
+    else
+        showSyntaxeError();
 }
