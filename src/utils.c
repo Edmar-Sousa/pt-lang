@@ -5,9 +5,9 @@
 
 
 
-void lexialError(unsigned int line, const char * character)
+void lexialError(unsigned int line, const char character)
 {
-    fprintf(stderr, "\nErro: Não esperava o caracter \"%s\".\n\n", character);
+    fprintf(stderr, "\n\033[31mErro: Não esperava o caracter \"%c\"\033[m.\n\n", character);
     fprintf(stderr, "\t%d | %s\n", line, getBufferSlice());
     fprintf(stderr, "\t%*s^-- Aqui.\n\n", getBufferPosition() + 3, "");
 

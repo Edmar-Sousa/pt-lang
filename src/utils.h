@@ -6,7 +6,7 @@
 #include "buffer.h"
 
 
-void lexialError(unsigned int line, const char * character);
+void lexialError(unsigned int line, const char character);
 void exitOnError(const char * message, ...);
 
 #endif
