@@ -20,5 +20,7 @@ typedef struct {
 
 
 TokenType getNextToken();
+int getLine();
+char * getAmountIdentifier();
 
 #endif

@@ -23,6 +23,10 @@ char * getAmountIdentifier()
     return identifier;
 }
 
+int getLine()
+{
+    return linePos;
+}
 
 static int isAlpha(char c)
 {
