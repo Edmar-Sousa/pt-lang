@@ -2,8 +2,10 @@
 #include "globals.h"
 #include "utils.h"
 #include <stdio.h>
+#include <string.h>
 
 int linePos = 0;
+static char identifier[MAX_IDENTIFIER_SIZE];
 
 StructKeyWorld keyWorlds[MAX_NUMBER_KEY_WORLD] = {
     { .world = "variavel", .type = TOK_VAR },
@@ -14,6 +16,12 @@ StructKeyWorld keyWorlds[MAX_NUMBER_KEY_WORLD] = {
     { .world = "imprimir", .type = TOK_PRINT },
     { .world = "retorne", .type = TOK_RETURN }
 };
+
+
+char * getAmountIdentifier() 
+{
+    return identifier;
+}
 
 
 static int isAlpha(char c)
@@ -33,12 +41,13 @@ static int isAlphaNumeric(char c)
 
 static TokenType getKeyWorldOrIdentifier()
 {
+    memset(identifier, '\0', MAX_IDENTIFIER_SIZE);
+    
     backCaracter();
-    char identifier[MAX_IDENTIFIER_SIZE];
     unsigned char identifierPos = 0;
 
     char c = getNextChar();
-    while (isAlphaNumeric(c)) {
+    while (isAlphaNumeric(c) && identifierPos < MAX_IDENTIFIER_SIZE - 1) {
         identifier[identifierPos++] = c;
         c = getNextChar();
     }
@@ -49,7 +58,7 @@ static TokenType getKeyWorldOrIdentifier()
     for (int i = 0; i < MAX_NUMBER_KEY_WORLD; i++) {
         StructKeyWorld keyWorld = keyWorlds[i];
 
-        if (strcmp(identifier, keyWorld.world) == 0) {
+        if (strncmp(identifier, keyWorld.world, MAX_IDENTIFIER_SIZE) == 0) {
             #ifdef DEBUG
             printf("keyworld: <%s, %d>\n", keyWorld.world, keyWorld.type);
             #endif
@@ -284,7 +293,7 @@ TokenType getNextToken()
                 if (isAlpha(c)) return getKeyWorldOrIdentifier();
                 if (isNumeric(c)) return getNumber();
 
-                lexialError(linePos + 1, &c);
+                lexialError(linePos + 1, c);
                 break;
         }
     }
