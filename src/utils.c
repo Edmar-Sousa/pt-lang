@@ -24,16 +24,3 @@ void syntaxeError(unsigned int line, const char * world)
     exit(EXIT_FAILURE);
 }
 
-
-void exitOnError(const char * message, ...)
-{
-    va_list args;
-    va_start(args, message);
-
-    fprintf(stderr, "[Quati] ERROR: ");
-    vfprintf(stderr, message, args);
-
-    va_end(args);
-    exit(EXIT_FAILURE);
-}
-

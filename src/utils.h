@@ -8,6 +8,5 @@
 
 void lexialError(unsigned int line, const char character);
 void syntaxeError(unsigned int line, const char * world);
-void exitOnError(const char * message, ...);
 
 #endif
