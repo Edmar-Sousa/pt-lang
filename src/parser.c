@@ -96,7 +96,13 @@ static void stmtSequence()
 
 static void paramList()
 {
-    match(TOK_ID);
+    while (currentToken == TOK_ID)
+    {
+        match(TOK_ID);
+
+        if (currentToken != TOK_RPAR)
+            match(TOK_COMMAN);
+    }
 }
 
 static void loopIncrement()
