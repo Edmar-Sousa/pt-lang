@@ -1,4 +1,8 @@
-variavel numero = 10;
-funcao teste(testee, @) { 
-    retorne "Hello world!";
+variavel teste = 10;
+
+funcao sayHello(name) {
+    imprimir("Hello");
+    imprimir(name);
 }
+
+sayHello("Edinho");
