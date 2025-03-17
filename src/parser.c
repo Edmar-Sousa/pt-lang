@@ -45,6 +45,8 @@ static void stmtFunc();
 static void stmtAssign();
 static void stmtVar();
 
+static void argumentsList();
+
 static void stmt();
 static void stmtSequence();
 
@@ -247,11 +249,32 @@ static void stmtFunc()
     match(TOK_RBRACE);
 }
 
+static void argumentsList()
+{
+    while (currentToken == TOK_ID || currentToken == TOK_INT || currentToken == TOK_STRING)
+    {
+        match(currentToken);
+
+        if (currentToken != TOK_RPAR)
+            match(TOK_COMMAN);
+    }
+}
+
 static void stmtAssign() 
 {
     match(TOK_ID);
-    match(TOK_ASSIGN);
-    stmtExp();
+
+    if (currentToken == TOK_ASSIGN) {
+        match(TOK_ASSIGN);
+        stmtExp();
+    }
+    
+    else if (currentToken == TOK_LPAR) {
+        match(TOK_LPAR);
+        argumentsList();
+        match(TOK_RPAR);
+    }
+    
     match(TOK_SEMICOLON);
 }
 
