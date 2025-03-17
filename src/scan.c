@@ -254,8 +254,6 @@ TokenType getNextToken()
             case '+': {
                 char next = getNextChar();
 
-                printf("C: %c -> NEXT: %c\n", c, next);
-
                 if (next == '+') {
                     #ifdef DEBUG
                     printf("<'++', %d>\n", TOK_INCREMENT);
