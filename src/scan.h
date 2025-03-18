@@ -21,6 +21,8 @@ typedef struct {
 
 TokenType getNextToken();
 int getLine();
+
 char * getAmountIdentifier();
+int getIntvalue();
 
 #endif

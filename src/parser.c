@@ -24,8 +24,7 @@ static void match(TokenType tok)
     currentToken = getNextToken();
 }
 
-static void number();
-static void factor();
+static TreeNode * factor();
 static void term();
 
 static void expArithmetic();
@@ -336,10 +335,16 @@ static void term()
     
 }
 
-static void factor() 
+static TreeNode * factor() 
 {
-    if (currentToken == TOK_INT)
+    TreeNode * t = NULL;
+
+    if (currentToken == TOK_INT) {
+        t = newExpNode(ConstK);
+        t->attrs.val = getIntvalue();
+        
         match(TOK_INT);
+    }
 
     else if (currentToken == TOK_ID)
         match(TOK_ID);
@@ -353,4 +358,6 @@ static void factor()
 
     else
         showSyntaxeError();
+
+    return NULL;
 }

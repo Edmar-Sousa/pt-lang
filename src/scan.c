@@ -5,6 +5,8 @@
 #include <string.h>
 
 int linePos = 0;
+
+static int intvalue = 0;
 static char identifier[MAX_IDENTIFIER_SIZE];
 
 StructKeyWorld keyWorlds[MAX_NUMBER_KEY_WORLD] = {
@@ -21,6 +23,11 @@ StructKeyWorld keyWorlds[MAX_NUMBER_KEY_WORLD] = {
 char * getAmountIdentifier() 
 {
     return identifier;
+}
+
+int getIntvalue() 
+{
+    return intvalue;
 }
 
 int getLine()
@@ -81,19 +88,23 @@ static TokenType getKeyWorldOrIdentifier()
 
 static TokenType getNumber()
 {
+    memset(identifier, '\0', MAX_IDENTIFIER_SIZE);
+
     backCaracter();
-    int number = 0;
 
     char c = getNextChar();
+    unsigned char index = 0;
+    
     while (isNumeric(c)) {
-        number = number * 10 + (c - '0');
+        identifier[index++] = c;
+        intvalue = intvalue * 10 + (c - '0');
         c = getNextChar();
     }
 
     backCaracter();
 
     #ifdef DEBUG
-    printf("<%d, %d>\n", number, TOK_INT);
+    printf("<%d, %d>\n", intvalue, TOK_INT);
     #endif
 
     return TOK_INT;
