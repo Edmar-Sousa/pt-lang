@@ -24,3 +24,40 @@ void syntaxeError(unsigned int line, const char * world)
     exit(EXIT_FAILURE);
 }
 
+void errorMemory() 
+{
+    fprintf(stderr, "\n\033[31mErro ao alocar memoria.\033[m\n\n");
+    exit(EXIT_FAILURE);
+}
+
+TreeNode * newStmtNode(StmtKind stmtKind)
+{
+    TreeNode * newNode = (TreeNode *) malloc(sizeof(TreeNode));
+
+    if (!newNode) errorMemory();
+
+    for (int count = 0; count < MAX_CHILDREN; count++)
+        newNode->childs[count] = NULL;
+
+    newNode->next = NULL;
+    newNode->nodekind = StmtK;
+    newNode->kind.stmt = stmtKind;
+
+    return newNode;
+}
+
+TreeNode * newExpNode(StmtKind stmtKind)
+{
+    TreeNode * newNode = (TreeNode *) malloc(sizeof(TreeNode));
+
+    if (!newNode) errorMemory();
+
+    for (int count = 0; count < MAX_CHILDREN; count++)
+        newNode->childs[count] = NULL;
+
+    newNode->next = NULL;
+    newNode->nodekind = ExpK;
+    newNode->kind.stmt = stmtKind;
+
+    return newNode;
+}

@@ -9,4 +9,7 @@
 void lexialError(unsigned int line, const char character);
 void syntaxeError(unsigned int line, const char * world);
 
+TreeNode * newStmtNode(StmtKind stmtKind);
+TreeNode * newExpNode(StmtKind stmtKind);
+
 #endif
