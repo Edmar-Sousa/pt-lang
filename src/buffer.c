@@ -1,77 +1,22 @@
 #include "buffer.h"
+#include "includes.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-FILE * source = NULL;
 
-static char buffer[MAX_BUFFER_SIZE];
-static int bufferSize = 0;
-static int bufferPos = 0;
-
-
-static unsigned short findBreakLineOnBuffer(unsigned short start, char dir)
+void initBuffer(Buffer * buf)
 {
-    if (start + dir < 0 || start + dir > bufferSize)
-        return start;
+    memset(buf->buffer, '\0', MAX_BUFFER_SIZE);
 
-    unsigned short position = start;
-
-    while (
-        position + dir >= 0 && position >= start - MAX_LINE_LIMIT
-        && position + dir < bufferSize && position <= start + MAX_LINE_LIMIT
-        && buffer[position] != '\n'
-    ) {
-        position = position + dir;
-    }
-
-    return position;
+    buf->source = NULL;
+    buf->bufferPos = 0;
+    buf->bufferSize = 0;
 }
 
 
-char * getBufferSlice()
-{
-    unsigned short startLine = findBreakLineOnBuffer(bufferPos, -1);
-    unsigned short endLine = findBreakLineOnBuffer(bufferPos, 1);
-    unsigned short length = endLine - startLine;
-
-
-    char * slice = (char *) malloc(length + 1);
-
-    if (!slice)
-        return NULL;
-
-    memcpy(slice, buffer + startLine, length);
-    slice[length] = '\0';
-
-    return slice;
-}
-
-char getNextChar() {
-    if (bufferPos < bufferSize)
-        return buffer[bufferPos++];
-
-    if (fgets(buffer, MAX_BUFFER_SIZE - 1, source)) {
-        bufferPos = 0;
-        bufferSize = strlen(buffer);
-        return buffer[bufferPos++];
-    }
-
-    return TOK_EOF;
-}
-
-
-int getBufferPosition() {
-    return bufferPos;
-}
-
-void backCaracter()
-{
-    bufferPos = bufferPos > 0 ? bufferPos - 1 : 0;
-}
-
-
-void getProgram(int argc, char ** argv) 
+void openProgramFile(Buffer * buf, int argc, char ** argv) 
 {
     if (argc < 2) {
         printf("[Quati] Execute \"quati <program.quati>\"\n");
@@ -84,5 +29,71 @@ void getProgram(int argc, char ** argv)
     if (strchr(program, '.') == NULL) 
         strcat(program, ".quati");
 
-    source = fopen(program, "r");
+    buf->source = fopen(program, "r");
 }
+
+
+static uint32_t findBreakLineOnBuffer(Buffer * buf, char dir)
+{
+    if (buf->bufferPos + dir < 0 || buf->bufferPos + dir > buf->bufferSize)
+        return buf->bufferPos;
+
+    uint32_t position = buf->bufferPos;
+
+    while (
+        position + dir >= 0 && position >= buf->bufferPos - MAX_LINE_LIMIT
+        && position + dir < buf->bufferSize && position <= buf->bufferPos + MAX_LINE_LIMIT
+        && buf->buffer[position] != '\n'
+    ) {
+        position = position + dir;
+    }
+
+    return position;
+}
+
+
+char * getBufferSlice(Buffer * buf)
+{
+    uint32_t startLine = findBreakLineOnBuffer(buf, -1);
+    uint32_t endLine = findBreakLineOnBuffer(buf, 1);
+    uint32_t length = endLine - startLine;
+
+
+    char * slice = (char *) malloc(length + 1);
+
+    if (!slice)
+        return NULL;
+
+    memcpy(slice, buf->buffer + startLine, length);
+    slice[length] = '\0';
+
+    return slice;
+}
+
+char getNextChar(Buffer * buf) 
+{
+    if (buf->bufferPos < buf->bufferSize)
+        return buf->buffer[buf->bufferPos++];
+
+    if (fgets(buf->buffer, MAX_BUFFER_SIZE - 1, buf->source)) 
+    {
+        buf->bufferPos = 0;
+        buf->bufferSize = strlen(buf->buffer);
+
+        return buf->buffer[buf->bufferPos++];
+    }
+
+    return TOK_EOF;
+}
+
+
+uint32_t getBufferPosition(Buffer * buf) 
+{
+    return buf->bufferPos;
+}
+
+void backCaracter(Buffer * buf)
+{
+    buf->bufferPos = buf->bufferPos > 0 ? buf->bufferPos - 1 : 0;
+}
+

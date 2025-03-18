@@ -12,12 +12,24 @@
 extern FILE * source;
 
 
-char getNextChar();
-char * getBufferSlice();
-void backCaracter();
+typedef struct {
+    FILE * source;
 
-void getProgram(int argc, char ** argv);
+    char buffer[MAX_BUFFER_SIZE];
+    uint32_t bufferSize;
+    uint32_t bufferPos;
+} Buffer;
 
-int getBufferPosition();
+
+void initBuffer(Buffer *);
+void openProgramFile(Buffer *, int, char **) ;
+
+char getNextChar(Buffer *);
+
+uint32_t getBufferPosition(Buffer *);
+
+char * getBufferSlice(Buffer *);
+
+void backCaracter(Buffer *); 
 
 #endif
