@@ -64,7 +64,7 @@ typedef struct TreeNode {
     struct TreeNode * next;
 
     NodeKind nodekind;
-    union { StmtKind stmt; ExpType exp; } kind;
+    union { StmtKind stmt; ExpKind exp; } kind;
     union {
         TokenType op;
         int val;
