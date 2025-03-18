@@ -46,7 +46,7 @@ TreeNode * newStmtNode(StmtKind stmtKind)
     return newNode;
 }
 
-TreeNode * newExpNode(StmtKind stmtKind)
+TreeNode * newExpNode(ExpKind expKind)
 {
     TreeNode * newNode = (TreeNode *) malloc(sizeof(TreeNode));
 
@@ -57,7 +57,7 @@ TreeNode * newExpNode(StmtKind stmtKind)
 
     newNode->next = NULL;
     newNode->nodekind = ExpK;
-    newNode->kind.stmt = stmtKind;
+    newNode->kind.exp = expKind;
 
     return newNode;
 }
