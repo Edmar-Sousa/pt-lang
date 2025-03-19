@@ -6,284 +6,286 @@
 
 static TokenType currentToken;
 
-void showSyntaxeError()
+void showSyntaxeError(Scan * scan)
 {
-    syntaxeError(getLine() + 1, getAmountIdentifier());
+    syntaxeError(
+        scan->buf,
+        getLine(scan) + 1, 
+        getAmountIdentifier(scan)
+    );
 }
 
 
-static void match(TokenType tok)
+static void match(Scan * scan, TokenType tok)
 {
     if (currentToken != tok)
-        showSyntaxeError();
+        showSyntaxeError(scan);
 
     #ifdef DEBUG
     printf("MATCH: %d\n", tok);
     #endif
 
-    currentToken = getNextToken();
+    currentToken = getNextToken(scan);
 }
 
-static TreeNode * factor();
-static void term();
+static TreeNode * factor(Scan *);
+static void term(Scan *);
 
-static void expArithmetic();
-static void stmtExp();
+static void expArithmetic(Scan *);
+static void stmtExp(Scan *);
 
-static void stmtPrint();
+static void stmtPrint(Scan *);
 
-static void funcBody();
-static void paramList();
+static void funcBody(Scan *);
+static void paramList(Scan *);
 
-static void loopBody();
-static void loopIncrement();
-static void stmtLoop();
+static void loopBody(Scan *);
+static void loopIncrement(Scan *);
+static void stmtLoop(Scan *);
 
-static void stmtIf();
-static void stmtFunc();
-static void stmtAssign();
-static void stmtVar();
+static void stmtIf(Scan *);
+static void stmtFunc(Scan *);
+static void stmtAssign(Scan *);
+static void stmtVar(Scan *);
 
-static void argumentsList();
+static void argumentsList(Scan *);
+static void stmtSequence(Scan *);
 
-static void stmt();
-static void stmtSequence();
-
-TreeNode * getProgramAST() 
+TreeNode * getProgramAST(Scan * scan) 
 {
-    currentToken = getNextToken();
+    currentToken = getNextToken(scan);
 
-    stmtSequence();
-    match(TOK_EOF);
+    stmtSequence(scan);
+    match(scan, TOK_EOF);
 
     return NULL;
 };
 
-static void stmtSequence()
+static void stmtSequence(Scan * scan)
 {
     while (currentToken == TOK_PRINT || currentToken == TOK_IF || currentToken == TOK_FOR || currentToken == TOK_VAR || currentToken == TOK_ID || currentToken == TOK_FUN) 
     {
         switch (currentToken) 
         {
             case TOK_PRINT:
-                stmtPrint();
+                stmtPrint(scan);
                 break;
 
             case TOK_FOR:
-                stmtLoop();
+                stmtLoop(scan);
                 break;
 
             case TOK_IF:
-                stmtIf();
+                stmtIf(scan);
                 break;
 
             case TOK_FUN:
-                stmtFunc();
+                stmtFunc(scan);
                 break;
 
             case TOK_VAR:
-                stmtVar();
+                stmtVar(scan);
                 break;
     
             case TOK_ID:
-                stmtAssign();
+                stmtAssign(scan);
                 break;
     
             default:
-                showSyntaxeError();
+                showSyntaxeError(scan);
         }
     }
 }
 
-static void paramList()
+static void paramList(Scan * scan)
 {
     while (currentToken == TOK_ID)
     {
-        match(TOK_ID);
+        match(scan, TOK_ID);
 
         if (currentToken != TOK_RPAR)
-            match(TOK_COMMAN);
+            match(scan, TOK_COMMAN);
     }
 }
 
-static void loopIncrement()
+static void loopIncrement(Scan * scan)
 {
-    match(TOK_ID);
+    match(scan, TOK_ID);
 
     if (currentToken == TOK_INCREMENT || currentToken == TOK_DECREMENT)
-        match(currentToken);
+        match(scan, currentToken);
 
     else if (currentToken == TOK_ASSIGN)
     {
-        match(TOK_ASSIGN);
-        stmtExp();
+        match(scan, TOK_ASSIGN);
+        stmtExp(scan);
     }
 }
 
-static void loopBody()
+static void loopBody(Scan * scan)
 {
     while (currentToken == TOK_PRINT || currentToken == TOK_VAR || currentToken == TOK_ID || currentToken == TOK_IF) 
     {
         switch (currentToken) 
         {
             case TOK_PRINT:
-                stmtPrint();
+                stmtPrint(scan);
                 break;
 
             case TOK_IF:
-                stmtIf();
+                stmtIf(scan);
                 break;
             
             case TOK_VAR:
-                stmtVar();
+                stmtVar(scan);
                 break;
     
             case TOK_ID:
-                stmtAssign();
+                stmtAssign(scan);
                 break;
     
             default:
-                showSyntaxeError();
+                showSyntaxeError(scan);
         }
     }
 }
 
-static void stmtPrint()
+static void stmtPrint(Scan * scan)
 {
-    match(TOK_PRINT);
-    match(TOK_LPAR);
+    match(scan, TOK_PRINT);
+    match(scan, TOK_LPAR);
 
     if (currentToken == TOK_STRING)
-        match(TOK_STRING);
+        match(scan, TOK_STRING);
 
     else
-        stmtExp();
+        stmtExp(scan);
 
-    match(TOK_RPAR);
-    match(TOK_SEMICOLON);
+    match(scan, TOK_RPAR);
+    match(scan, TOK_SEMICOLON);
 }
 
-static void stmtLoop()
+static void stmtLoop(Scan * scan)
 {
-    match(TOK_FOR);
-    match(TOK_LPAR);
-    stmtVar();
-    stmtExp();
-    match(TOK_SEMICOLON);
-    loopIncrement();
-    match(TOK_RPAR);
+    match(scan, TOK_FOR);
+    match(scan, TOK_LPAR);
+    stmtVar(scan);
+    stmtExp(scan);
+    match(scan, TOK_SEMICOLON);
+    loopIncrement(scan);
+    match(scan, TOK_RPAR);
 
-    match(TOK_LBRACE);
-    loopBody();
-    match(TOK_RBRACE);
+    match(scan, TOK_LBRACE);
+    loopBody(scan);
+    match(scan, TOK_RBRACE);
 }
 
-static void stmtIf()
+static void stmtIf(Scan * scan)
 {
-    match(TOK_IF);
-    match(TOK_LPAR);
-    stmtExp();
-    match(TOK_RPAR);
-    match(TOK_LBRACE);
-    stmtSequence();
-    match(TOK_RBRACE);
+    match(scan, TOK_IF);
+    match(scan, TOK_LPAR);
+    stmtExp(scan);
+    match(scan, TOK_RPAR);
+    match(scan, TOK_LBRACE);
+    stmtSequence(scan);
+    match(scan, TOK_RBRACE);
 
     if (currentToken == TOK_ELSE) 
     {
-        match(TOK_ELSE);
-        match(TOK_LBRACE);
-        stmtSequence();
-        match(TOK_RBRACE);
+        match(scan, TOK_ELSE);
+        match(scan, TOK_LBRACE);
+        stmtSequence(scan);
+        match(scan, TOK_RBRACE);
     }
 }
 
-static void funcBody()
+static void funcBody(Scan * scan)
 {
     while (currentToken == TOK_PRINT || currentToken == TOK_VAR || currentToken == TOK_ID || currentToken == TOK_IF) 
     {
         switch (currentToken) 
         {
             case TOK_PRINT:
-                stmtPrint();
+                stmtPrint(scan);
                 break;
 
             case TOK_IF:
-                stmtIf();
+                stmtIf(scan);
                 break;
             
             case TOK_VAR:
-                stmtVar();
+                stmtVar(scan);
                 break;
     
             case TOK_ID:
-                stmtAssign();
+                stmtAssign(scan);
                 break;
     
             default:
-                showSyntaxeError();
+                showSyntaxeError(scan);
         }
     }
 
     if (currentToken == TOK_RETURN) {
-        match(TOK_RETURN);
+        match(scan, TOK_RETURN);
 
         if (currentToken == TOK_STRING)
-            match(TOK_STRING);
+            match(scan, TOK_STRING);
         else
-            stmtExp();
+            stmtExp(scan);
 
-        match(TOK_SEMICOLON);
+        match(scan, TOK_SEMICOLON);
     }
 }
 
-static void stmtFunc()
+static void stmtFunc(Scan * scan)
 {
-    match(TOK_FUN);
-    match(TOK_ID);
-    match(TOK_LPAR);
-    paramList();
-    match(TOK_RPAR);
-    match(TOK_LBRACE);
-    funcBody();
-    match(TOK_RBRACE);
+    match(scan, TOK_FUN);
+    match(scan, TOK_ID);
+    match(scan, TOK_LPAR);
+    paramList(scan);
+    match(scan, TOK_RPAR);
+    match(scan, TOK_LBRACE);
+    funcBody(scan);
+    match(scan, TOK_RBRACE);
 }
 
-static void argumentsList()
+static void argumentsList(Scan * scan)
 {
     while (currentToken == TOK_ID || currentToken == TOK_INT || currentToken == TOK_STRING)
     {
-        match(currentToken);
+        match(scan, currentToken);
 
         if (currentToken != TOK_RPAR)
-            match(TOK_COMMAN);
+            match(scan, TOK_COMMAN);
     }
 }
 
-static void stmtAssign() 
+static void stmtAssign(Scan * scan) 
 {
-    match(TOK_ID);
+    match(scan, TOK_ID);
 
     if (currentToken == TOK_ASSIGN) {
-        match(TOK_ASSIGN);
-        stmtExp();
+        match(scan, TOK_ASSIGN);
+        stmtExp(scan);
     }
     
     else if (currentToken == TOK_LPAR) {
-        match(TOK_LPAR);
-        argumentsList();
-        match(TOK_RPAR);
+        match(scan, TOK_LPAR);
+        argumentsList(scan);
+        match(scan, TOK_RPAR);
     }
     
-    match(TOK_SEMICOLON);
+    match(scan, TOK_SEMICOLON);
 }
 
-static void stmtVar() 
+static void stmtVar(Scan * scan) 
 {
-    match(TOK_VAR);
-    match(TOK_ID);
-    match(TOK_ASSIGN);
-    stmtExp();
-    match(TOK_SEMICOLON);
+    match(scan, TOK_VAR);
+    match(scan, TOK_ID);
+    match(scan, TOK_ASSIGN);
+    stmtExp(scan);
+    match(scan, TOK_SEMICOLON);
 }
 
 static int isRelationalOperator()
@@ -291,73 +293,73 @@ static int isRelationalOperator()
     return (currentToken >= TOK_EQUAL) && (currentToken <= TOK_GTE);
 }
 
-static void stmtExp() 
+static void stmtExp(Scan * scan) 
 {
-    expArithmetic();
+    expArithmetic(scan);
 
     if (isRelationalOperator()) {
-        match(currentToken);
-        expArithmetic();
+        match(scan, currentToken);
+        expArithmetic(scan);
     }
 }
 
-static void expArithmetic()
+static void expArithmetic(Scan * scan)
 {
-    term();
+    term(scan);
 
     while (currentToken == TOK_PLUS || currentToken == TOK_MINUS) 
     {
         if (currentToken == TOK_PLUS)
-            match(TOK_PLUS);
+            match(scan, TOK_PLUS);
 
         else if (currentToken == TOK_MINUS)
-            match(TOK_MINUS);
+            match(scan, TOK_MINUS);
 
-        term();
+        term(scan);
     }
 
 }
 
-static void term()
+static void term(Scan * scan)
 {
-    factor();
+    factor(scan);
 
     while (currentToken == TOK_SLASH || currentToken == TOK_STARS) 
     {
         if (currentToken == TOK_SLASH)
-            match(TOK_SLASH);
+            match(scan, TOK_SLASH);
 
         else if (currentToken == TOK_STARS)
-            match(TOK_STARS);
+            match(scan, TOK_STARS);
 
-        factor();
+        factor(scan);
     }
     
 }
 
-static TreeNode * factor() 
+static TreeNode * factor(Scan * scan) 
 {
     TreeNode * t = NULL;
 
     if (currentToken == TOK_INT) {
         t = newExpNode(ConstK);
-        t->attrs.val = getIntvalue();
+        t->attrs.val = getIntvalue(scan);
         
-        match(TOK_INT);
+        match(scan, TOK_INT);
     }
 
     else if (currentToken == TOK_ID)
-        match(TOK_ID);
+        match(scan, TOK_ID);
 
     else if (currentToken == TOK_LPAR) 
     {
-        match(TOK_LPAR);
-        stmtExp();
-        match(TOK_RPAR);
+        match(scan, TOK_LPAR);
+        stmtExp(scan);
+        match(scan, TOK_RPAR);
     }
 
     else
-        showSyntaxeError();
+        showSyntaxeError(scan);
 
     return NULL;
 }
