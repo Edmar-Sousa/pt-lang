@@ -8,8 +8,6 @@
 
 void initBuffer(Buffer * buf)
 {
-    memset(buf->buffer, '\0', MAX_BUFFER_SIZE);
-
     buf->source = NULL;
     buf->bufferPos = 0;
     buf->bufferSize = 0;
@@ -38,15 +36,13 @@ static uint32_t findBreakLineOnBuffer(Buffer * buf, char dir)
     if (buf->bufferPos + dir < 0 || buf->bufferPos + dir > buf->bufferSize)
         return buf->bufferPos;
 
-    uint32_t position = buf->bufferPos;
+    int32_t position = buf->bufferPos;
 
-    while (
-        position + dir >= 0 && position >= buf->bufferPos - MAX_LINE_LIMIT
-        && position + dir < buf->bufferSize && position <= buf->bufferPos + MAX_LINE_LIMIT
-        && buf->buffer[position] != '\n'
-    ) {
+    int32_t start = buf->bufferPos - MAX_LINE_LIMIT < 0 ? 0 : buf->bufferPos - MAX_LINE_LIMIT;
+    int32_t end = buf->bufferPos + MAX_LINE_LIMIT > buf->bufferSize ? buf->bufferSize : buf->bufferPos + MAX_LINE_LIMIT;
+
+    while (position > start && position < end)
         position = position + dir;
-    }
 
     return position;
 }
@@ -54,10 +50,9 @@ static uint32_t findBreakLineOnBuffer(Buffer * buf, char dir)
 
 char * getBufferSlice(Buffer * buf)
 {
-    uint32_t startLine = findBreakLineOnBuffer(buf, -1);
-    uint32_t endLine = findBreakLineOnBuffer(buf, 1);
-    uint32_t length = endLine - startLine;
-
+    int32_t startLine = findBreakLineOnBuffer(buf, -1);
+    int32_t endLine = findBreakLineOnBuffer(buf, 1);
+    int32_t length = endLine - startLine;
 
     char * slice = (char *) malloc(length + 1);
 
@@ -75,7 +70,7 @@ char getNextChar(Buffer * buf)
     if (buf->bufferPos < buf->bufferSize)
         return buf->buffer[buf->bufferPos++];
 
-    if (fgets(buf->buffer, MAX_BUFFER_SIZE - 1, buf->source)) 
+    if (fgets(buf->buffer, MAX_LINE_SIZE - 1, buf->source)) 
     {
         buf->bufferPos = 0;
         buf->bufferSize = strlen(buf->buffer);

@@ -13,8 +13,8 @@ typedef struct {
     FILE * source;
 
     char buffer[MAX_LINE_SIZE];
-    uint32_t bufferSize;
-    uint32_t bufferPos;
+    int32_t bufferSize;
+    int32_t bufferPos;
 } Buffer;
 
 
