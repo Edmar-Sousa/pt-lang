@@ -5,17 +5,14 @@
 #include "globals.h"
 
 
-#define MAX_BUFFER_SIZE         1024
+#define MAX_LINE_SIZE           1024
 #define MAX_LINE_LIMIT            30
-
-
-extern FILE * source;
 
 
 typedef struct {
     FILE * source;
 
-    char buffer[MAX_BUFFER_SIZE];
+    char buffer[MAX_LINE_SIZE];
     uint32_t bufferSize;
     uint32_t bufferPos;
 } Buffer;
