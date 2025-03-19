@@ -1,13 +1,10 @@
 #include "scan.h"
+#include "buffer.h"
 #include "globals.h"
 #include "utils.h"
 #include <stdio.h>
 #include <string.h>
 
-int linePos = 0;
-
-static int intvalue = 0;
-static char identifier[MAX_IDENTIFIER_SIZE];
 
 StructKeyWorld keyWorlds[MAX_NUMBER_KEY_WORLD] = {
     { .world = "variavel", .type = TOK_VAR },
@@ -19,20 +16,35 @@ StructKeyWorld keyWorlds[MAX_NUMBER_KEY_WORLD] = {
     { .world = "retorne", .type = TOK_RETURN }
 };
 
-
-char * getAmountIdentifier() 
+char * getAmountIdentifier(Scan * scan)
 {
-    return identifier;
+    return scan->identifier;
 }
 
-int getIntvalue() 
+int32_t getIntvalue(Scan * scan)
 {
-    return intvalue;
+    return scan->intval;
 }
 
-int getLine()
+uint32_t getLine(Scan * scan)
 {
-    return linePos;
+    return scan->linepos;
+}
+
+static void resetScanIdentifier(Scan * scan)
+{
+    memset(scan->string, '\0', MAX_STRING_SIZE);
+    memset(scan->identifier, '\0', MAX_IDENTIFIER_SIZE);
+    
+    scan->intval = 0;
+    scan->index = 0;
+}
+
+void initScan(Scan * scan, Buffer * buf)
+{
+    resetScanIdentifier(scan);
+    scan->linepos = 0;
+    scan->buf = buf;
 }
 
 static int isAlpha(char c)
@@ -50,26 +62,26 @@ static int isAlphaNumeric(char c)
     return isAlpha(c) || isNumeric(c);
 }
 
-static TokenType getKeyWorldOrIdentifier()
-{
-    memset(identifier, '\0', MAX_IDENTIFIER_SIZE);
-    
-    backCaracter();
-    unsigned char identifierPos = 0;
 
-    char c = getNextChar();
-    while (isAlphaNumeric(c) && identifierPos < MAX_IDENTIFIER_SIZE - 1) {
-        identifier[identifierPos++] = c;
-        c = getNextChar();
+static TokenType getKeyWorldOrIdentifier(Scan * scan)
+{
+    resetScanIdentifier(scan);
+    backCaracter(scan->buf);
+
+    char c = getNextChar(scan->buf);
+
+    while (isAlphaNumeric(c) && scan->index < MAX_IDENTIFIER_SIZE - 1) {
+        scan->identifier[scan->index++] = c;
+        c = getNextChar(scan->buf);
     }
     
-    backCaracter();
-    identifier[identifierPos] = '\0';
+    backCaracter(scan->buf);
+    scan->identifier[scan->index++] = '\0';
 
     for (int i = 0; i < MAX_NUMBER_KEY_WORLD; i++) {
         StructKeyWorld keyWorld = keyWorlds[i];
 
-        if (strncmp(identifier, keyWorld.world, MAX_IDENTIFIER_SIZE) == 0) {
+        if (strncmp(scan->identifier, keyWorld.world, MAX_IDENTIFIER_SIZE) == 0) {
             #ifdef DEBUG
             printf("keyworld: <%s, %d>\n", keyWorld.world, keyWorld.type);
             #endif
@@ -79,70 +91,68 @@ static TokenType getKeyWorldOrIdentifier()
     }
 
     #ifdef DEBUG
-    printf("<%s, %d>\n", identifier, TOK_ID);
+    printf("<%s, %d>\n", scan->identifier, TOK_ID);
     #endif
 
     return TOK_ID;
 }
 
 
-static TokenType getNumber()
+static TokenType getNumber(Scan * scan)
 {
-    memset(identifier, '\0', MAX_IDENTIFIER_SIZE);
+    resetScanIdentifier(scan);
+    backCaracter(scan->buf);
 
-    backCaracter();
-
-    char c = getNextChar();
-    unsigned char index = 0;
+    char c = getNextChar(scan->buf);
+    scan->index = 0;
     
     while (isNumeric(c)) {
-        identifier[index++] = c;
-        intvalue = intvalue * 10 + (c - '0');
-        c = getNextChar();
+        scan->identifier[scan->index++] = c;
+        scan->intval = scan->intval * 10 + (c - '0');
+
+        c = getNextChar(scan->buf);
     }
 
-    backCaracter();
+    backCaracter(scan->buf);
 
     #ifdef DEBUG
-    printf("<%d, %d>\n", intvalue, TOK_INT);
+    printf("<%d, %d>\n", scan->intval, TOK_INT);
     #endif
 
     return TOK_INT;
 }
 
-TokenType getString()
+TokenType getString(Scan * scan)
 {
-    char string[MAX_STRING_SIZE];
-    unsigned short position = 0;
-    
-    string[position++] = '"';
+    resetScanIdentifier(scan);
+    scan->string[scan->index++] = '"';
 
-    char c = getNextChar();
+    char c = getNextChar(scan->buf);
     while (c != '"') 
     {
-        string[position++] = c;
-        c = getNextChar();
+        scan->string[scan->index++] = c;
+        c = getNextChar(scan->buf);
     }
 
-    string[position++] = '"';
-    string[position++] = '\0';
+    scan->string[scan->index++] = '"';
+    scan->string[scan->index++] = '\0';
 
     #ifdef DEBUG
-    printf("<%s, %d>\n", string, TOK_STRING);
+    printf("<%s, %d>\n", scan->string, TOK_STRING);
     #endif
 
     return TOK_STRING;
 }
 
-TokenType getNextToken() 
+TokenType getNextToken(Scan * scan) 
 {
     char c;
 
-    while ((c = getNextChar()) != TOK_EOF) {
+    while ((c = getNextChar(scan->buf)) != TOK_EOF) {
         switch (c) 
         {
             case '\n':
-                linePos += 1;
+                scan->linepos += 1;
                 break;
             
             case ' ':
@@ -150,11 +160,11 @@ TokenType getNextToken()
                 continue;
 
             case '"': {
-                return getString();
+                return getString(scan);
             }
 
             case '=': {
-                char next = getNextChar();
+                char next = getNextChar(scan->buf);
 
                 if (next == '=') {
                     #ifdef DEBUG
@@ -164,7 +174,7 @@ TokenType getNextToken()
                     return TOK_EQUAL;
                 }
 
-                backCaracter();
+                backCaracter(scan->buf);
 
                 #ifdef DEBUG
                 printf("<'=', %d>\n", TOK_ASSIGN);
@@ -194,7 +204,7 @@ TokenType getNextToken()
                 return TOK_RPAR;
             }
             case '<': {
-                char next = getNextChar();
+                char next = getNextChar(scan->buf);
 
                 if (next == '=') {
                     #ifdef DEBUG
@@ -211,7 +221,7 @@ TokenType getNextToken()
                 return TOK_LT;
             }
             case '>': {
-                char next = getNextChar();
+                char next = getNextChar(scan->buf);
 
                 if (next == '=') {
                     #ifdef DEBUG
@@ -263,7 +273,7 @@ TokenType getNextToken()
                 return TOK_SLASH;
             }
             case '+': {
-                char next = getNextChar();
+                char next = getNextChar(scan->buf);
 
                 if (next == '+') {
                     #ifdef DEBUG
@@ -273,7 +283,7 @@ TokenType getNextToken()
                     return TOK_INCREMENT;
                 }
                 
-                backCaracter();
+                backCaracter(scan->buf);
 
                 #ifdef DEBUG
                 printf("<'+', %d>\n", TOK_PLUS);
@@ -283,7 +293,7 @@ TokenType getNextToken()
             }
 
             case '-': {
-                char next = getNextChar();
+                char next = getNextChar(scan->buf);
 
                 if (next == '-') {
                     #ifdef DEBUG
@@ -293,7 +303,7 @@ TokenType getNextToken()
                     return TOK_DECREMENT;
                 }
 
-                backCaracter();
+                backCaracter(scan->buf);
 
                 #ifdef DEBUG
                 printf("<'+', %d>\n", TOK_MINUS);
@@ -303,10 +313,10 @@ TokenType getNextToken()
             }
 
             default:
-                if (isAlpha(c)) return getKeyWorldOrIdentifier();
-                if (isNumeric(c)) return getNumber();
+                if (isAlpha(c)) return getKeyWorldOrIdentifier(scan);
+                if (isNumeric(c)) return getNumber(scan);
 
-                lexialError(linePos + 1, c);
+                lexialError(scan->buf, scan->linepos + 1, c);
                 break;
         }
     }
