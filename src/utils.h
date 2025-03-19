@@ -7,8 +7,8 @@
 #include "buffer.h"
 
 
-void lexialError(unsigned int line, const char character);
-void syntaxeError(unsigned int line, const char * world);
+void lexialError(Buffer * buf, uint32_t line, const char character);
+void syntaxeError(Buffer * buf, uint32_t line, const char * world);
 
 TreeNode * newStmtNode(StmtKind stmtKind);
 TreeNode * newExpNode(ExpKind stmtKind);
