@@ -7,9 +7,6 @@
 #include <stdint.h>
 
 
-extern int linePos;
-
-
 #define MAX_PROGRAM_NAME  30
 
 #endif
