@@ -309,13 +309,17 @@ static void expArithmetic(Scan * scan)
 
     while (currentToken == TOK_PLUS || currentToken == TOK_MINUS) 
     {
-        if (currentToken == TOK_PLUS)
-            match(scan, TOK_PLUS);
+        TreeNode * rightTree = newExpNode(OpK);
 
-        else if (currentToken == TOK_MINUS)
-            match(scan, TOK_MINUS);
-
-        term(scan);
+        if (rightTree) {
+            rightTree->childs[0] = leftTree;
+            rightTree->attrs.op = currentToken;
+    
+            leftTree = rightTree;
+            match(scan, currentToken);
+    
+            leftTree->childs[1] = term(scan);
+        }
     }
 
 }
@@ -333,7 +337,6 @@ static TreeNode * term(Scan * scan)
             rightTree->attrs.op = currentToken;
     
             leftTree = rightTree;
-    
             match(scan, currentToken);
     
             leftTree->childs[1] = factor(scan);
