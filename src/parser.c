@@ -31,10 +31,10 @@ static void match(Scan * scan, TokenType tok)
 static TreeNode * factor(Scan *);
 static TreeNode * term(Scan *);
 
-static void expArithmetic(Scan *);
-static void stmtExp(Scan *);
+static TreeNode * expArithmetic(Scan *);
+static TreeNode * stmtExp(Scan *);
 
-static void stmtPrint(Scan *);
+static TreeNode * stmtPrint(Scan *);
 
 static void funcBody(Scan *);
 static void paramList(Scan *);
@@ -49,53 +49,69 @@ static void stmtAssign(Scan *);
 static void stmtVar(Scan *);
 
 static void argumentsList(Scan *);
-static void stmtSequence(Scan *);
+static TreeNode * stmt(Scan *);
+static TreeNode * stmtSequence(Scan *);
 
 TreeNode * getProgramAST(Scan * scan) 
 {
     currentToken = getNextToken(scan);
 
-    stmtSequence(scan);
+    TreeNode * program = stmtSequence(scan);
     match(scan, TOK_EOF);
 
-    return NULL;
+    return program;
 };
 
-static void stmtSequence(Scan * scan)
+static TreeNode * stmtSequence(Scan * scan)
 {
+    TreeNode * stmtNode = stmt(scan);
+    TreeNode * auxNode = stmtNode;
+
     while (currentToken == TOK_PRINT || currentToken == TOK_IF || currentToken == TOK_FOR || currentToken == TOK_VAR || currentToken == TOK_ID || currentToken == TOK_FUN) 
     {
-        switch (currentToken) 
-        {
-            case TOK_PRINT:
-                stmtPrint(scan);
-                break;
+        TreeNode * nextStmt = stmt(scan);
 
-            case TOK_FOR:
-                stmtLoop(scan);
-                break;
-
-            case TOK_IF:
-                stmtIf(scan);
-                break;
-
-            case TOK_FUN:
-                stmtFunc(scan);
-                break;
-
-            case TOK_VAR:
-                stmtVar(scan);
-                break;
-    
-            case TOK_ID:
-                stmtAssign(scan);
-                break;
-    
-            default:
-                showSyntaxeError(scan);
+        if (nextStmt) {
+            auxNode->next = nextStmt;
+            auxNode = nextStmt;
         }
     }
+
+    return stmtNode;
 }
+
+static TreeNode * stmt(Scan * scan) 
+{
+    switch (currentToken) 
+    {
+        case TOK_PRINT: return stmtPrint(scan);
+        case TOK_FOR:
+            stmtLoop(scan);
+            break;
+
+        case TOK_IF:
+            stmtIf(scan);
+            break;
+
+        case TOK_FUN:
+            stmtFunc(scan);
+            break;
+
+        case TOK_VAR:
+            stmtVar(scan);
+            break;
+
+        case TOK_ID:
+            stmtAssign(scan);
+            break;
+
+        default:
+            return NULL;
+    }
+
+    return NULL;
+}
+
 
 static void paramList(Scan * scan)
 {
@@ -150,19 +166,29 @@ static void loopBody(Scan * scan)
     }
 }
 
-static void stmtPrint(Scan * scan)
+static TreeNode * stmtPrint(Scan * scan)
 {
+    TreeNode * stmtNode = newStmtNode(WriteK);
+
     match(scan, TOK_PRINT);
     match(scan, TOK_LPAR);
 
-    if (currentToken == TOK_STRING)
+    if (currentToken == TOK_STRING) 
+    {
+        TreeNode * stringNode = newExpNode(StringK);
+        stringNode->attrs.name = getStringValue(scan);
+
         match(scan, TOK_STRING);
+        stmtNode->childs[0] = stringNode;
+    }
 
     else
-        stmtExp(scan);
+        stmtNode->childs[0] = stmtExp(scan);
 
     match(scan, TOK_RPAR);
     match(scan, TOK_SEMICOLON);
+
+    return stmtNode;
 }
 
 static void stmtLoop(Scan * scan)
@@ -293,17 +319,26 @@ static int isRelationalOperator()
     return (currentToken >= TOK_EQUAL) && (currentToken <= TOK_GTE);
 }
 
-static void stmtExp(Scan * scan) 
+static TreeNode * stmtExp(Scan * scan) 
 {
-    expArithmetic(scan);
+    TreeNode * leftTree = expArithmetic(scan);
 
     if (isRelationalOperator()) {
+        TreeNode * rightTree = newExpNode(OpK);
+
+        rightTree->childs[0] = leftTree;
+        rightTree->attrs.op = currentToken;
+
+        leftTree = rightTree;
         match(scan, currentToken);
-        expArithmetic(scan);
+
+        leftTree->childs[1] = expArithmetic(scan);
     }
+
+    return leftTree;
 }
 
-static void expArithmetic(Scan * scan)
+static TreeNode * expArithmetic(Scan * scan)
 {
     TreeNode * leftTree = term(scan);
 
@@ -322,6 +357,7 @@ static void expArithmetic(Scan * scan)
         }
     }
 
+    return leftTree;
 }
 
 static TreeNode * term(Scan * scan)
