@@ -33,6 +33,17 @@ int32_t getIntvalue(Scan * scan)
     return scan->intval;
 }
 
+char * getStringValue(Scan * scan)
+{
+    char * string = (char *) malloc(sizeof(char) * MAX_STRING_SIZE);
+
+    if (!string)
+        return NULL;
+
+    strncpy(string, scan->string, MAX_STRING_SIZE);
+    return string;
+}
+
 uint32_t getLine(Scan * scan)
 {
     return scan->linepos;

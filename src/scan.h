@@ -35,6 +35,7 @@ void initScan(Scan *, Buffer *);
 TokenType getNextToken(Scan *) ;
 
 char * getAmountIdentifier(Scan *);
+char * getStringValue(Scan *);
 
 int32_t getIntvalue(Scan *);
 uint32_t getLine(Scan *);
