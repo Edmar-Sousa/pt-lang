@@ -29,7 +29,7 @@ static void match(Scan * scan, TokenType tok)
 }
 
 static TreeNode * factor(Scan *);
-static void term(Scan *);
+static TreeNode * term(Scan *);
 
 static void expArithmetic(Scan *);
 static void stmtExp(Scan *);
@@ -305,7 +305,7 @@ static void stmtExp(Scan * scan)
 
 static void expArithmetic(Scan * scan)
 {
-    term(scan);
+    TreeNode * leftTree = term(scan);
 
     while (currentToken == TOK_PLUS || currentToken == TOK_MINUS) 
     {
@@ -320,37 +320,47 @@ static void expArithmetic(Scan * scan)
 
 }
 
-static void term(Scan * scan)
+static TreeNode * term(Scan * scan)
 {
-    factor(scan);
+    TreeNode * leftTree = factor(scan);
 
     while (currentToken == TOK_SLASH || currentToken == TOK_STARS) 
     {
-        if (currentToken == TOK_SLASH)
-            match(scan, TOK_SLASH);
+        TreeNode * rightTree = newExpNode(OpK);
 
-        else if (currentToken == TOK_STARS)
-            match(scan, TOK_STARS);
-
-        factor(scan);
-    }
+        if (rightTree) {
+            rightTree->childs[0] = leftTree;
+            rightTree->attrs.op = currentToken;
     
+            leftTree = rightTree;
+    
+            match(scan, currentToken);
+    
+            leftTree->childs[1] = factor(scan);
+        }
+    }
+
+    return leftTree;    
 }
 
 static TreeNode * factor(Scan * scan) 
 {
-    TreeNode * t = NULL;
+    TreeNode * leaft = NULL;
 
     if (currentToken == TOK_INT) {
-        t = newExpNode(ConstK);
-        t->attrs.val = getIntvalue(scan);
-        
+        leaft = newExpNode(ConstK);
+
+        if (leaft)
+            leaft->attrs.val = getIntvalue(scan);
+
         match(scan, TOK_INT);
     }
 
     else if (currentToken == TOK_ID) {
-        t = newExpNode(IdK);
-        t->attrs.name = getAmountIdentifier(scan);
+        leaft = newExpNode(IdK);
+
+        if (leaft)
+            leaft->attrs.name = getAmountIdentifier(scan);
 
         match(scan, TOK_ID);
     }
@@ -365,5 +375,5 @@ static TreeNode * factor(Scan * scan)
     else
         showSyntaxeError(scan);
 
-    return NULL;
+    return leaft;
 }
