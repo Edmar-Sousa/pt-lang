@@ -3,6 +3,7 @@
 #include "globals.h"
 #include "utils.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 
@@ -18,7 +19,13 @@ StructKeyWorld keyWorlds[MAX_NUMBER_KEY_WORLD] = {
 
 char * getAmountIdentifier(Scan * scan)
 {
-    return scan->identifier;
+    char * identifier = (char *) malloc(sizeof(char) * MAX_IDENTIFIER_SIZE);
+
+    if (!identifier)
+        return NULL;
+
+    strncpy(identifier, scan->identifier, MAX_IDENTIFIER_SIZE);
+    return identifier;
 }
 
 int32_t getIntvalue(Scan * scan)
