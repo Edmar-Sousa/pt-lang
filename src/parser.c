@@ -348,8 +348,12 @@ static TreeNode * factor(Scan * scan)
         match(scan, TOK_INT);
     }
 
-    else if (currentToken == TOK_ID)
+    else if (currentToken == TOK_ID) {
+        t = newExpNode(IdK);
+        t->attrs.name = getAmountIdentifier(scan);
+
         match(scan, TOK_ID);
+    }
 
     else if (currentToken == TOK_LPAR) 
     {
