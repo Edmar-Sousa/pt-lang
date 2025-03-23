@@ -88,7 +88,8 @@ static TokenType getKeyWorldOrIdentifier(Scan * scan)
 
     char c = getNextChar(scan->buf);
 
-    while (isAlphaNumeric(c) && scan->index < MAX_IDENTIFIER_SIZE - 1) {
+    while (isAlphaNumeric(c) && scan->index < MAX_IDENTIFIER_SIZE - 1) 
+    {
         scan->identifier[scan->index++] = c;
         c = getNextChar(scan->buf);
     }
@@ -96,21 +97,13 @@ static TokenType getKeyWorldOrIdentifier(Scan * scan)
     backCaracter(scan->buf);
     scan->identifier[scan->index++] = '\0';
 
-    for (int i = 0; i < MAX_NUMBER_KEY_WORLD; i++) {
+    for (int i = 0; i < MAX_NUMBER_KEY_WORLD; i++) 
+    {
         StructKeyWorld keyWorld = keyWorlds[i];
 
-        if (strncmp(scan->identifier, keyWorld.world, MAX_IDENTIFIER_SIZE) == 0) {
-            #ifdef DEBUG
-            printf("keyworld: <%s, %d>\n", keyWorld.world, keyWorld.type);
-            #endif
-
+        if (strncmp(scan->identifier, keyWorld.world, MAX_IDENTIFIER_SIZE) == 0)
             return keyWorld.type;
-        }
     }
-
-    #ifdef DEBUG
-    printf("<%s, %d>\n", scan->identifier, TOK_ID);
-    #endif
 
     return TOK_ID;
 }
@@ -124,7 +117,8 @@ static TokenType getNumber(Scan * scan)
     char c = getNextChar(scan->buf);
     scan->index = 0;
     
-    while (isNumeric(c)) {
+    while (isNumeric(c)) 
+    {
         scan->identifier[scan->index++] = c;
         scan->intval = scan->intval * 10 + (c - '0');
 
@@ -132,11 +126,6 @@ static TokenType getNumber(Scan * scan)
     }
 
     backCaracter(scan->buf);
-
-    #ifdef DEBUG
-    printf("<%d, %d>\n", scan->intval, TOK_INT);
-    #endif
-
     return TOK_INT;
 }
 
@@ -155,10 +144,6 @@ TokenType getString(Scan * scan)
     scan->string[scan->index++] = '"';
     scan->string[scan->index++] = '\0';
 
-    #ifdef DEBUG
-    printf("<%s, %d>\n", scan->string, TOK_STRING);
-    #endif
-
     return TOK_STRING;
 }
 
@@ -166,7 +151,8 @@ TokenType getNextToken(Scan * scan)
 {
     char c;
 
-    while ((c = getNextChar(scan->buf)) != TOK_EOF) {
+    while ((c = getNextChar(scan->buf)) != TOK_EOF) 
+    {
         switch (c) 
         {
             case '\n':
@@ -177,156 +163,59 @@ TokenType getNextToken(Scan * scan)
             case '\t':
                 continue;
 
-            case '"': {
-                return getString(scan);
-            }
+            case '"': return getString(scan);
 
             case '=': {
                 char next = getNextChar(scan->buf);
 
-                if (next == '=') {
-                    #ifdef DEBUG
-                    printf("<'==', %d>\n", TOK_ASSIGN);
-                    #endif
-
-                    return TOK_EQUAL;
-                }
+                if (next == '=') return TOK_EQUAL;
 
                 backCaracter(scan->buf);
-
-                #ifdef DEBUG
-                printf("<'=', %d>\n", TOK_ASSIGN);
-                #endif
-
                 return TOK_ASSIGN;
             }
-            case ';': {
-                #ifdef DEBUG
-                printf("<';', %d>\n", TOK_SEMICOLON);
-                #endif
 
-                return TOK_SEMICOLON;
-            }
-            case '(': {
-                #ifdef DEBUG
-                printf("<'(', %d>\n", TOK_LPAR);
-                #endif
+            case ';': return TOK_SEMICOLON;
+            case '(': return TOK_LPAR;
+            case ')': return TOK_RPAR;
 
-                return TOK_LPAR;
-            }
-            case ')': {
-                #ifdef DEBUG
-                printf("<')', %d>\n", TOK_RPAR);
-                #endif
-
-                return TOK_RPAR;
-            }
             case '<': {
                 char next = getNextChar(scan->buf);
 
-                if (next == '=') {
-                    #ifdef DEBUG
-                    printf("<'<=', %d>\n", TOK_LTE);
-                    #endif
-
+                if (next == '=')
                     return TOK_LTE;
-                }
-
-                #ifdef DEBUG
-                printf("<'<', %d>\n", TOK_LT);
-                #endif
 
                 return TOK_LT;
             }
+
             case '>': {
                 char next = getNextChar(scan->buf);
 
-                if (next == '=') {
-                    #ifdef DEBUG
-                    printf("<'>=', %d>\n", TOK_GTE);
-                    #endif
-
+                if (next == '=')
                     return TOK_GTE;
-                }
-
-                #ifdef DEBUG
-                printf("<'>', %d>\n", TOK_GT);
-                #endif
 
                 return TOK_GT;
             }
-            case '{': {
-                #ifdef DEBUG
-                printf("<'{', %d>\n", TOK_LBRACE);
-                #endif
 
-                return TOK_LBRACE;
-            }
-            case '}': {
-                #ifdef DEBUG
-                printf("<'}', %d>\n", TOK_RBRACE);
-                #endif
-
-                return TOK_RBRACE;
-            }
-            case ',': {
-                #ifdef DEBUG
-                printf("<',', %d>\n", TOK_COMMAN);
-                #endif
-
-                return TOK_COMMAN;
-            }
-            case '*': {
-                #ifdef DEBUG
-                printf("<'*', %d>\n", TOK_STARS);
-                #endif
-
-                return TOK_STARS;
-            }
-            case '/': {
-                #ifdef DEBUG
-                printf("<'/', %d>\n", TOK_SLASH);
-                #endif
-
-                return TOK_SLASH;
-            }
+            case '{': return TOK_LBRACE;
+            case '}': return TOK_RBRACE;
+            case ',': return TOK_COMMAN;
+            case '*': return TOK_STARS;
+            case '/': return TOK_SLASH;
             case '+': {
                 char next = getNextChar(scan->buf);
 
-                if (next == '+') {
-                    #ifdef DEBUG
-                    printf("<'++', %d>\n", TOK_INCREMENT);
-                    #endif
-
-                    return TOK_INCREMENT;
-                }
+                if (next == '+') return TOK_INCREMENT;
                 
                 backCaracter(scan->buf);
-
-                #ifdef DEBUG
-                printf("<'+', %d>\n", TOK_PLUS);
-                #endif
-
                 return TOK_PLUS;
             }
 
             case '-': {
                 char next = getNextChar(scan->buf);
 
-                if (next == '-') {
-                    #ifdef DEBUG
-                    printf("<'--', %d>\n", TOK_DECREMENT);
-                    #endif
-
-                    return TOK_DECREMENT;
-                }
+                if (next == '-') return TOK_DECREMENT;
 
                 backCaracter(scan->buf);
-
-                #ifdef DEBUG
-                printf("<'+', %d>\n", TOK_MINUS);
-                #endif
-
                 return TOK_MINUS;
             }
 
