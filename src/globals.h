@@ -2,7 +2,7 @@
 #define __QUATI_GLOBALS_H__
 
 
-#define DEBUG   1
+// #define DEBUG   1
 
 
 typedef enum {
@@ -51,10 +51,10 @@ typedef enum {
 } TokenType;
 
 
-#define MAX_CHILDREN   3
+#define MAX_CHILDREN   4
 
 typedef enum { StmtK, ExpK } NodeKind;
-typedef enum { OpK, ConstK, IdK } ExpKind;
+typedef enum { OpK, ConstK, IdK, StringK } ExpKind;
 typedef enum { IfK, ForK, FuncK, AssignK, WriteK } StmtKind;
 
 typedef enum { Void, Int, Bool } ExpType;
