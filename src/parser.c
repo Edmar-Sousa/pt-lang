@@ -21,10 +21,6 @@ static void match(Scan * scan, TokenType tok)
     if (currentToken != tok)
         showSyntaxeError(scan);
 
-    #ifdef DEBUG
-    printf("MATCH: %d\n", tok);
-    #endif
-
     currentToken = getNextToken(scan);
 }
 
@@ -48,7 +44,7 @@ static TreeNode * stmtFunc(Scan *);
 static TreeNode * stmtAssign(Scan *);
 static TreeNode * stmtVar(Scan *);
 
-static void argumentsList(Scan *);
+static TreeNode * argumentsList(Scan *);
 static TreeNode * stmt(Scan *);
 static TreeNode * stmtSequence(Scan *);
 
@@ -71,7 +67,8 @@ static TreeNode * stmtSequence(Scan * scan)
     {
         TreeNode * nextStmt = stmt(scan);
 
-        if (nextStmt) {
+        if (nextStmt) 
+        {
             auxNode->next = nextStmt;
             auxNode = nextStmt;
         }
@@ -112,7 +109,8 @@ static TreeNode * paramList(Scan * scan)
         match(scan, TOK_ID);
 
         if (!paramsNode) paramsNode = auxNode = param;
-        else {
+        else 
+        {
             auxNode->next = param;
             auxNode = param;
         }
@@ -135,7 +133,8 @@ static TreeNode * loopIncrement(Scan * scan)
 
     loopIncrement->childs[0] = left;
 
-    if (currentToken == TOK_INCREMENT || currentToken == TOK_DECREMENT) {
+    if (currentToken == TOK_INCREMENT || currentToken == TOK_DECREMENT) 
+    {
         loopIncrement->attrs.op = currentToken;
         match(scan, currentToken);
     }
@@ -175,7 +174,8 @@ static TreeNode * loopBody(Scan * scan)
         TreeNode * node = loopBodyStmt(scan);
 
         if (!node) loopNode = auxNode = node;
-        else {
+        else 
+        {
             auxNode->next = node;
             auxNode = node;
         }
@@ -285,7 +285,8 @@ static TreeNode * funcBody(Scan * scan)
         TreeNode * bodyStmt = funcStmtBody(scan);
 
         if (!bodyNode) bodyNode = auxNode = bodyStmt;
-        else {
+        else 
+        {
             auxNode->next = bodyStmt;
             auxNode = bodyStmt;
         }
@@ -293,10 +294,12 @@ static TreeNode * funcBody(Scan * scan)
 
     TreeNode * returnStmt = NULL;
 
-    if (currentToken == TOK_RETURN) {
+    if (currentToken == TOK_RETURN) 
+    {
         match(scan, TOK_RETURN);
 
-        if (currentToken == TOK_STRING) {
+        if (currentToken == TOK_STRING) 
+        {
             returnStmt = newExpNode(StringK);
             returnStmt->attrs.name = getStringValue(scan);
 
@@ -341,15 +344,53 @@ static TreeNode * stmtFunc(Scan * scan)
     return funcStmt;
 }
 
-static void argumentsList(Scan * scan)
+static TreeNode * paramTreeNode(Scan * scan)
 {
+    TreeNode * node = NULL;
+
+    if (currentToken == TOK_ID) 
+    {
+        node = newExpNode(IdK);
+        node->attrs.name = getAmountIdentifier(scan);
+    }
+
+    else if (currentToken == TOK_INT) 
+    {
+        node = newExpNode(ConstK);
+        node->attrs.val = getIntvalue(scan);
+    }
+
+    else if (currentToken == TOK_STRING) 
+    {
+        node = newExpNode(StringK);
+        node->attrs.name = getStringValue(scan);
+    }
+
+    return node;
+}
+
+static TreeNode * argumentsList(Scan * scan)
+{
+    TreeNode * paramNode = NULL;
+    TreeNode * auxNode = paramNode;
+
     while (currentToken == TOK_ID || currentToken == TOK_INT || currentToken == TOK_STRING)
     {
+        TreeNode * param = paramTreeNode(scan);
         match(scan, currentToken);
+
+        if (!paramNode) paramNode = auxNode = param;
+        else 
+        {
+            auxNode->next = param;
+            auxNode = param;
+        }
 
         if (currentToken != TOK_RPAR)
             match(scan, TOK_COMMAN);
     }
+
+    return paramNode;
 }
 
 static TreeNode * stmtAssign(Scan * scan) 
@@ -357,14 +398,16 @@ static TreeNode * stmtAssign(Scan * scan)
     TreeNode * assignNode = newStmtNode(AssignK);
     match(scan, TOK_ID);
 
-    if (currentToken == TOK_ASSIGN) {
+    if (currentToken == TOK_ASSIGN) 
+    {
         match(scan, TOK_ASSIGN);
         assignNode->childs[0] = stmtExp(scan);
     }
     
-    else if (currentToken == TOK_LPAR) {
+    else if (currentToken == TOK_LPAR) 
+    {
         match(scan, TOK_LPAR);
-        argumentsList(scan);
+        assignNode->childs[0] = argumentsList(scan);
         match(scan, TOK_RPAR);
     }
     
@@ -398,7 +441,8 @@ static TreeNode * stmtExp(Scan * scan)
 {
     TreeNode * leftTree = expArithmetic(scan);
 
-    if (isRelationalOperator()) {
+    if (isRelationalOperator()) 
+    {
         TreeNode * rightTree = newExpNode(OpK);
 
         rightTree->childs[0] = leftTree;
@@ -421,7 +465,8 @@ static TreeNode * expArithmetic(Scan * scan)
     {
         TreeNode * rightTree = newExpNode(OpK);
 
-        if (rightTree) {
+        if (rightTree) 
+        {
             rightTree->childs[0] = leftTree;
             rightTree->attrs.op = currentToken;
     
@@ -443,7 +488,8 @@ static TreeNode * term(Scan * scan)
     {
         TreeNode * rightTree = newExpNode(OpK);
 
-        if (rightTree) {
+        if (rightTree) 
+        {
             rightTree->childs[0] = leftTree;
             rightTree->attrs.op = currentToken;
     
@@ -461,7 +507,8 @@ static TreeNode * factor(Scan * scan)
 {
     TreeNode * leaft = NULL;
 
-    if (currentToken == TOK_INT) {
+    if (currentToken == TOK_INT) 
+    {
         leaft = newExpNode(ConstK);
 
         if (leaft)
@@ -470,7 +517,8 @@ static TreeNode * factor(Scan * scan)
         match(scan, TOK_INT);
     }
 
-    else if (currentToken == TOK_ID) {
+    else if (currentToken == TOK_ID) 
+    {
         leaft = newExpNode(IdK);
 
         if (leaft)
