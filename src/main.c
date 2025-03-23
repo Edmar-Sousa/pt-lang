@@ -1,6 +1,8 @@
 #include "buffer.h"
+#include "globals.h"
 #include "scan.h"
 #include "parser.h"
+#include <stdio.h>
 
 
 Buffer buf;
@@ -20,7 +22,8 @@ int main(int argc, char ** argv)
 {
     init(argc, argv);
 
-    getProgramAST(&scan);
-    
+    TreeNode * tree = getProgramAST(&scan);
+
+
     return 0;
 }

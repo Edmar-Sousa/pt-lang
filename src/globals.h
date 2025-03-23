@@ -1,8 +1,12 @@
 #ifndef __QUATI_GLOBALS_H__
 #define __QUATI_GLOBALS_H__
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
 
-// #define DEBUG   1
+#define MAX_PROGRAM_NAME  30
 
 
 typedef enum {
