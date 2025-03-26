@@ -86,4 +86,34 @@ int stLookup(char * name)
     return tableCell->memloc;
 }
 
+static void printTable()
+{
+    fprintf(stdout, "Variable Name   Location   Line Numbers\n");
+    fprintf(stdout, "-------------   --------   ------------\n");
+
+    for (int i = 0; i < SYMTAB_MAX_SIZE; i++) 
+    {
+        if (hashTable[i]) 
+        {
+            BucketList bucket = hashTable[i];
+
+            while (bucket) 
+            {
+                LineList lineList = bucket->lines;
+
+                fprintf(stdout, "%-14s  ", bucket->name);
+                fprintf(stdout, "%-8d   ", bucket->memloc);
+
+                while (lineList) {
+                    fprintf(stdout, "%4d ", lineList->line);
+                    lineList = lineList->next;
+                }
+
+                fprintf(stdout, "\n");
+                bucket = bucket->next;
+            }
+        }
+    }
+
+}
 
