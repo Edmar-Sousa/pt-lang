@@ -4,4 +4,6 @@
 void stInsert(char *, int, int);
 int stLookup(char *);
 
+void printTable();
+
 #endif

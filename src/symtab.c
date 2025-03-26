@@ -86,7 +86,7 @@ int stLookup(char * name)
     return tableCell->memloc;
 }
 
-static void printTable()
+void printTable()
 {
     fprintf(stdout, "Variable Name   Location   Line Numbers\n");
     fprintf(stdout, "-------------   --------   ------------\n");
