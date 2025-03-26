@@ -1,4 +1,5 @@
 all:
+	gcc -c src/symtab.c -o ./build/symtab.o
 	gcc -c src/buffer.c -o ./build/buffer.o
 	gcc -c src/utils.c -o ./build/utils.o
 	gcc -c src/scan.c -o ./build/scan.o
